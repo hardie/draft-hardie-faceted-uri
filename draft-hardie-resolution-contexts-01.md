@@ -2,7 +2,7 @@
 title: Considerations for establishing resolution contexts for Internet Names
 abbrev: Resolution-Contexts-for-Internet-Names
 docname: draft-hardie-resolution-contexts-00
-date: 2015-12-03
+date: 2016-01-28
 category: info
 ipr: trust200902
 keyword:  Internet-Draft
@@ -37,7 +37,8 @@ informative:
 
 --- abstract
 
-The effort to register .onion {{RFC7686}} in the IANA special names registry{{RFC6761}} has given rise to considerable discussion of how the namespace associated with the DNS relates to other namespaces used on the Internet.  A brief history of this has been set out in {{I-D.lewis-domain-names}}. This document focuses on the question of how to signal resolution context within a unified namespace that contains both DNS and non-DNS names.
+This document examines the question of how to signal the appropriate resolution context for Internet names.  It starts from the premise that the Domain Name System is by far the most common resolution context but that it is not the only extant or potential resolution context for Internet names.
+
 
 
 --- middle
@@ -48,23 +49,15 @@ The history in {{I-D.lewis-domain-names}} and the usage in {{RFC3986}} both sugg
 
 # Resolution Contexts
 
+The Domain Name System {{RFC1034}}{{RFC1035}} provides the most common resolution system for Internet names by many orders of magnitude.  It has not, however, met all resolution requirements.  Multicast DNS {{RFC6762}} uses an alternative resolution service, as does TOR {{TOR}}.  Tor’s .onion names, in particular, appear to be effectively Internet names within a globally shared naming context; they simply happen to use an alternative resolution method. It seems likely that this is because of a wish to use protocols defined for DNS names as if they were defined for their non-DNS Internet names.  The .onion example was driven at least in part, in other words, because its users wanted https://identifier.onion/ to work as a signal that the resource was a web site, even if dereferencing the authority section did not use the DNS.  In order to share the HTTPS URI context, they needed to minimize the changes to the form of the URI.  That meant using https:// with a resolution trigger, rather than changing the URI (tor-https://, for example).
 
-The Domain Name System {{RFC1034}}{{RFC1035}} provides the most common resolution system for Internet names by many orders of magnitude.  It has not, however, met all resolution requirements.  Multicast DNS {{RFC6762}} uses an alternative resolution service, as does TOR {{TOR}}.  Tor’s .onion names, in particular, appear to be effectively Internet names within a globally shared naming context; they simply happen to use an alternative resolution method.
-
-
-The key practical question that follows from the existence of alternative resolution contexts is how you can determine whether or not a particular Internet name is part of the Domain name set of Internet names, or part of a different set.  The de facto signal we are using now is the top-most label of the Internet name.  If it is within the known set of DNS top-most labels, we have a definite yes.  If it is within an established set of non-DNS top-most labels, we have a definite no. 
-
-
-There are at least two unfortunate sets of potentially conflicting cases, where people are using labels with the intent to use this signal but have not risen to the level of "established no".  In the first case, their usage may be mistaken for non-fully qualified names within the domain name system, resulting in the construction of a new Internet name where one was not intended (e.g. www.sld.allium becoming www.sld.allium.corp.example.com, rather than .allium being used as signal that this Internet name is not within the set of domain names).  The second case, which may overlap, is one in which the growth of the set of names in domain name system causes overlap (a new gTLD like .allium being assigned would conflict with the attempted use of .allium as a resolution context signal).
-
-
-The risks of the two conflicting cases are pretty obvious, but despite that the use of a pseudo-TLD signal seems desirable to many setting up alternative resolution contexts.  It seems likely that this is because the services within the alternative resolution contexts wish to use protocols defined for DNS names as if they were defined for their Internet names.  The .onion example was driven, in other words, at least in part because its users wanted https://identifier.onion/ to work.  In order to share the HTTPS URI context, they needed to minimize the changes to the form of the URI.  That meant using https:// with a resolution trigger, rather than changing the URI (tor-https://, for example).
-
-
-The implication for the universe of architecturally appropriate responses is that any means for signalling that a name is not within the DNS context but is still meant to be an Internet name must continue to allow those Internet names to be used in common protocol contexts.  It also means that any Internet name must expect restrictions to achieve that (viz. it must be a unique name within a directed graph within the overall Internet name namespace).
+The key practical question that follows from the existence of alternative resolution contexts for a globally shared naming context is how you can determine what resolution context is associated with a particular Internet name.  In particular, it is important to determine whether it is part of the Domain name set of Internet names.  The de facto signal in use now is the top-most label of the Internet name.  If that label is within the known set of DNS top-most labels, we have a definite yes.  If it is within an established set of non-DNS top-most labels, we have a definite no. 
+There are at least two unfortunate sets of potentially conflicting cases, where people are using labels with the intent to use this signal but have not risen to the level of "established no".  In the first case, their usage may be mistaken for non-fully qualified names within the domain name system, resulting in the construction of a new Internet name where one was not intended (e.g. www.sld.allium becoming www.sld.allium.corp.example.com, rather than .allium being used as signal that this Internet name is not within the set of domain names).  The second case, which may overlap, is one in which the growth of the set of names in domain name system causes overlap (a new gTLD like .allium being assigned would conflict with the attempted use of .allium as a resolution context signal).  The risks of the two conflicting cases are pretty obvious, but despite that the use of a pseudo-TLD signal seems desirable to many setting up alternative resolution contexts.  
 
 
 # Available Alternatives
+
+There are many potential ways to signal that an Internet name is not within the DNS context, but a only subset of those ways allow for those names to be used in protocol contexts which currently expect DNS-based names.  A non-exhaustive list is set out below.  It is important to recognize that any Internet name designed to me used in such a context must accept limitations to achieve it.  Some of those limitations are syntactic, but the most important is that it must be a unique name within a directed graph within the overall Internet namespace.
 
 
 Given that restriction, the universe of possible resolution context signals seems to be limited.  One option is using a designated sub-tree of the Internet namespace for non-DNS resolutions, with labels within the tree indicating which resolution context is meant. {{I-D.ietf-dnsop-alt-tld}} describes one specific approach to this option.  While the use of this sub-tree may be esthetically less pleasing than a pseudo-TLD, it avoids the ambiguities which may arise during the development of alternative resolution context.  
@@ -86,6 +79,9 @@ scheme      = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 
 Setting aside a string delimiter such as +.+ would allow something like https://identifier.onion/ to become https+._tor//identifier/.  This would require updates to URI parsing libraries that intended to handle alternative resolution contexts, but the use of a common delimiter would lower the amount of code needed both to identify the core protocol and the alternative resolution contexts.  It might remain esthetically less pleasing, however, and it would prevent the use of IDNA-permitted characters as resolution context identifiers, something which the DNS-based solutions do allow.
 
+# Scope considerations
+
+While this problem clearly has a potentially serious impact on both the scope of the relevant namespaces and on the code complexity required to deal with them, it is important to note that there are many Internet scale namespaces which do not present this problem.  An illustrative example may be taken from the instant messaging systems like WhatsApp.  As a mobile application, it confirms identity using E.164 numbers (by sending an SMS to the submitted number) and represents other users using the strings present in each phone's contact list, so it does not need to maintain a globally unique presentation form for its users.  While it may use the DNS for resolution of its servers, it clearly could avoid that indirection by distributing resolution hints pointing to anycast servers, much as the DNS root does.  Within an app context, in other words, namespaces completely independent of each other and the DNS can reach Internet scale.  These may, like Twitter handles, overlap the Internet namespace when used from browser contexts.  @ExampleName may be clear within a Twitter app context,but ExampleName@twitter.com is commonly used outside it. Some context marker is required to avoid ambiguity and the potential for fishing, as ExampleName may be one individual in the twitter context and a different one in Facebook's, but that context marker need not be the DNS. 
 
 # Conclusions
 
