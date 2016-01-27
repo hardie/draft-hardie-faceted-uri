@@ -57,7 +57,7 @@ There are at least two unfortunate sets of potentially conflicting cases, where 
 
 # Available Alternatives
 
-There are many potential ways to signal that an Internet name is not within the DNS context, but a only subset of those ways allow for those names to be used in protocol contexts which currently expect DNS-based names.  A non-exhaustive list is set out below.  It is important to recognize that any Internet name designed to me used in such a context must accept limitations to achieve it.  Some of those limitations are syntactic, but the most important is that it must be a unique name within a directed graph within the overall Internet namespace.
+There are many potential ways to signal that an Internet name is not within the DNS context, but a only subset of those ways allow for those names to be used in protocol contexts which currently expect DNS-based names.  A non-exhaustive list is set out below.  It is important to recognize that any Internet name designed to be used in such a context must accept limitations to achieve it.  Some of those limitations are syntactic, but the most important is that it must be a unique name within a directed graph within the overall Internet namespace.
 
 
 Given that restriction, the universe of possible resolution context signals seems to be limited.  One option is using a designated sub-tree of the Internet namespace for non-DNS resolutions, with labels within the tree indicating which resolution context is meant. {{I-D.ietf-dnsop-alt-tld}} describes one specific approach to this option.  While the use of this sub-tree may be esthetically less pleasing than a pseudo-TLD, it avoids the ambiguities which may arise during the development of alternative resolution context.  
