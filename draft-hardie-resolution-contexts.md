@@ -2,7 +2,7 @@
 title: Considerations for establishing resolution contexts for Internet Names
 abbrev: Resolution-Contexts-for-Internet-Names
 docname: draft-hardie-resolution-contexts-00
-date: 2015-12-03
+date: 2015-03-07
 category: info
 ipr: trust200902
 keyword:  Internet-Draft
